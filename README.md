@@ -132,6 +132,8 @@ append_to_gcs(GCS_BUCKET, 'logs/alerts.log', msg)
 
 Explanation: On task failure, alerts are sent via email, optionally via Slack, and logged into GCS.
 
+<img width="1913" height="945" alt="Screenshot 2025-09-17 183448" src="https://github.com/user-attachments/assets/a6361f6a-66c5-4a40-81fe-64cfc9aa03a1" />
+
 # 3\. Conclusion
 
 The ETL pipeline ensures structured ingestion, transformation, validation, and monitoring of clickstream and transaction data. By leveraging Cloud Composer (Airflow), this approach provides scalability, observability, and reliability.
