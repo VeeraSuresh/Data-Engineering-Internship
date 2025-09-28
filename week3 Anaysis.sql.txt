@@ -1,0 +1,15 @@
+#week3_analysis.sql
+
+-- Daily active users by country
+SELECT DATE(click_time) AS day, country, COUNT(DISTINCT user_id) AS dau
+FROM `neon-camp-471705-q5.curated_dw.clickstream`
+WHERE DATE(click_time) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND CURRENT_DATE()
+GROUP BY day, country
+ORDER BY day DESC, country;
+
+-- Revenue per currency vs USD
+SELECT currency, SUM(amount) AS total_amount, SUM(amount_in_usd) AS total_amount_usd
+FROM `neon-camp-471705-q5.curated_dw.transactions`
+WHERE DATE(txn_time) BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AND CURRENT_DATE()
+GROUP BY currency
+ORDER BY total_amount_usd DESC;

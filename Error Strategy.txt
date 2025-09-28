@@ -1,0 +1,27 @@
+# Clickstream errors
+bq load \
+  --source_format=PARQUET \
+  --autodetect \
+  --replace \
+  neon-camp-471705-q5.raw_spark_outputs.clicks_errors \
+  "gs://dataengg_intershipsep2025/errors/clicks_invalid/*.parquet"
+
+# Transaction errors
+bq load \
+  --source_format=PARQUET \
+  --autodetect \
+  --replace \
+  dataengg_intershipsep2025.raw_spark_outputs.transactions_errors \
+
+
+CREATE OR REPLACE TABLE `neon-camp-471705-q5.curated_dw.clickstream_errors` (
+  raw_payload STRING,
+  error_reason STRING,
+  load_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+);
+
+CREATE OR REPLACE TABLE `neon-camp-471705-q5.curated_dw.transactions_errors` (
+  raw_payload STRING,
+  error_reason STRING,
+  load_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+);

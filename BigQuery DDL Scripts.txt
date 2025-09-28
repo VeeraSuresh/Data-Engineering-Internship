@@ -1,0 +1,28 @@
+CREATE OR REPLACE EXTERNAL TABLE `neon-camp-471705-q5.raw_spark_outputs.clickstream_external`
+OPTIONS (
+  format = 'PARQUET',
+  uris = ['gs://dataengg_intershipsep2025/outputs/clickstream/*/*.parquet']
+);
+
+CREATE OR REPLACE TABLE `dataengg_intershipsep2025.raw_spark_outputs.clickstream` 
+PARTITION BY DATE(click_time) AS
+SELECT * FROM `neon-camp-471705-q5.raw_spark_outputs.clickstream_external`;
+
+
+bq --location=us-central1 mk --dataset neon-camp-471705-q5:raw_spark_outputs
+bq --location=us-central1 mk --dataset neon-camp-471705-q5:curated_dw
+
+#Load Clicks
+bq load --source_format=PARQUET --autodetect --replace neon-camp-471705-q5:raw_spark_outputs.clickstream ^
+"gs://dataengg_intershipsep2025/processed/clicks/*/*.parquet"
+
+#Load Transactions
+bq load --source_format=PARQUET --autodetect --replace neon-camp-471705-q5:raw_spark_outputs.clickstream ^
+"gs://dataengg_intershipsep2025/processed/clicks/*/*.parquet"
+
+
+#Click Errors
+bq load   --source_format=PARQUET   --autodetect   --replace   neon-camp-471705-q5.raw_spark_outputs.clicks_errors   "gs://dataengg_intershipsep2025/errors/clicks_invalid/*.parquet"
+
+#Transaction errors
+bq load   --source_format=PARQUET --autodetect --replace  neon-camp-471705-q5.raw_spark_outputs.transactions_errors "gs://dataengg_intershipsep2025/errors/transactions_invalid/*.parquet"
