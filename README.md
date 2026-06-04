@@ -1,88 +1,249 @@
-# Data-Engineering-Internship
-Transactions Dataset
+# Data Engineering Internship – Week 1
 
-Rows: 100,000
+### ETL Pipeline: Transactions & Clickstream Data Processing
 
-Columns: 5
+## Project Overview
 
-Schema:
+This project implements an end-to-end ETL (Extract, Transform, Load) pipeline that processes transactional and clickstream datasets, enriches transaction records using real-time exchange rates, and stores cleaned outputs in partitioned Google Cloud Storage (GCS).
 
-txn_id → String
+The solution demonstrates key data engineering concepts including data ingestion, transformation, enrichment, validation, logging, and cloud-based storage.
 
-user_id → Integer
+---
 
-amount → Float
+## Objectives
 
-currency → String
+* Extract data from XLSB source files
+* Process large datasets efficiently using chunk-based ingestion
+* Standardize and clean data
+* Convert timestamps to UTC
+* Enrich transaction data using exchange rates
+* Validate data quality through duplicate and null checks
+* Store processed data in partitioned cloud storage
+* Implement logging and failure handling
 
-txn_time → Timestamp string
+---
 
-Nulls: None
+## Datasets
 
-Duplicates: 0
+### Transactions Dataset
 
-Clickstream Dataset
+| Attribute | Data Type |
+| --------- | --------- |
+| txn_id    | String    |
+| user_id   | Integer   |
+| amount    | Float     |
+| currency  | String    |
+| txn_time  | Timestamp |
 
-Rows: 200,000
+**Statistics**
 
-Columns: 6
+* Rows: 100,000
+* Columns: 5
+* Null Values: 0
+* Duplicate Records: 0
 
-Schema:
+---
 
-user_id → Integer
+### Clickstream Dataset
 
-session_id → String
+| Attribute  | Data Type |
+| ---------- | --------- |
+| user_id    | Integer   |
+| session_id | String    |
+| page_url   | String    |
+| click_time | Timestamp |
+| device     | String    |
+| location   | String    |
 
-page_url → String
+**Statistics**
 
-click_time → Timestamp string
+* Rows: 200,000
+* Columns: 6
+* Null Values: 0
+* Duplicate Records: 0
 
-device → String
+---
 
-location → String
+## ETL Workflow
 
-Nulls: None
+### 1. Extract
 
-Duplicates: 0
+Data is extracted from:
 
-⚙️ Pipeline Tasks
-Task 1: Explore Datasets
+* transactions.xlsb
+* clickstream.xlsb
 
-Inspected schemas, null values, and duplicates.
+The files are processed in chunks of 50,000 rows to improve scalability and memory efficiency.
 
-Documented findings in this README.
+Additionally, exchange rates are retrieved from an external API for currency conversion.
 
-Task 2: Extract
+---
 
-Read data from .xlsb files in chunks of 50,000 rows.
+### 2. Transform
 
-Fetched currency exchange rates via API.
+The transformation layer performs:
 
-Task 3: Transform
+#### Data Standardization
 
-Standardized column names (lowercase, underscores).
+* Convert column names to lowercase
+* Replace spaces with underscores
 
-Converted timestamps to UTC timezone.
+#### Timestamp Processing
 
-Removed duplicates.
+* Convert all timestamps to UTC format
 
-Enriched transactions with amount_in_usd using exchange rates.
+#### Data Quality Checks
 
-Task 4: Load
+* Remove duplicate records
+* Validate schema consistency
+* Check for missing values
 
-Wrote cleaned outputs to Google Cloud Storage (GCS).
+#### Data Enrichment
 
-Partitioned by ingest_date=YYYY-MM-DD/ for each dataset.
+Transaction records are enriched using exchange rates:
 
-Task 5: Logging & Alerts
+amount_in_usd = amount × exchange_rate
 
-Logged row counts at each stage.
+This enables consistent financial reporting across currencies.
 
-Captured API failures or missing inputs.
+---
 
-Task 6: Architecture Diagram
-+------------------+       +-------------------+       +-------------------------+
-| Raw Data (XLSB)  |  -->  |  ETL Scripts      |  -->  | GCS Partitioned Storage |
-| transactions     |       |  (Python, Pandas) |       | ingest_date=YYYY-MM-DD/|
-| clickstream      |       |                   |       | transactions,clickstream|
-+------------------+       +-------------------+       +-------------------------+
+### 3. Load
+
+Processed datasets are written to Google Cloud Storage (GCS).
+
+Partitioning strategy:
+
+```text
+gs://bucket-name/transactions/ingest_date=YYYY-MM-DD/
+gs://bucket-name/clickstream/ingest_date=YYYY-MM-DD/
+```
+
+Benefits:
+
+* Faster querying
+* Improved scalability
+* Easier data lifecycle management
+* Optimized downstream analytics
+
+---
+
+## Logging & Monitoring
+
+The pipeline includes operational monitoring capabilities:
+
+* Record counts logged at each stage
+* Input file validation
+* API failure detection
+* Processing status tracking
+* Warning messages for missing files
+* Error handling and exception logging
+
+---
+
+## Architecture
+
+```text
++------------------+
+| Raw Data Sources |
++------------------+
+| transactions.xlsb|
+| clickstream.xlsb |
++------------------+
+          |
+          v
++----------------------+
+| Extraction Layer     |
+| Python + Pandas      |
+| Chunk Processing     |
++----------------------+
+          |
+          v
++----------------------+
+| Transformation Layer |
+| Standardization      |
+| UTC Conversion       |
+| Deduplication        |
+| Data Enrichment      |
++----------------------+
+          |
+          v
++----------------------+
+| Exchange Rate API    |
+| Currency Conversion  |
++----------------------+
+          |
+          v
++----------------------+
+| Loading Layer        |
+| Google Cloud Storage |
+| Partitioned Output   |
++----------------------+
+          |
+          v
++----------------------+
+| Analytics Ready Data |
++----------------------+
+```
+
+---
+
+## Technology Stack
+
+### Programming
+
+* Python
+
+### Data Processing
+
+* Pandas
+* Pyxlsb
+
+### Cloud
+
+* Google Cloud Storage (GCS)
+
+### APIs
+
+* ExchangeRate API
+
+### Monitoring
+
+* Python Logging
+
+### Data Engineering Concepts
+
+* ETL Pipelines
+* Data Validation
+* Data Quality Checks
+* Data Enrichment
+* Partitioning
+* Cloud Storage
+* Batch Processing
+
+---
+
+## Key Learning Outcomes
+
+* Built an end-to-end ETL pipeline
+* Processed large datasets using chunk-based ingestion
+* Integrated external APIs for data enrichment
+* Implemented cloud storage partitioning
+* Applied data quality validation techniques
+* Developed logging and monitoring mechanisms
+* Worked with Google Cloud Storage for scalable data storage
+
+---
+
+## Future Enhancements
+
+* Apache Airflow orchestration
+* Apache Spark processing
+* Incremental data loading
+* Automated data quality dashboards
+* BigQuery integration
+* CI/CD deployment pipeline
+* Real-time streaming ingestion using Kafka
+
+```
+```
