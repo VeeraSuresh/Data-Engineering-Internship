@@ -1,5 +1,4 @@
-# Data Engineering Internship – Week 1
-
+# Data Engineering Internship
 ### ETL Pipeline: Transactions & Clickstream Data Processing
 
 ## Project Overview
